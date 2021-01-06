@@ -9,6 +9,63 @@
 ---
 ---
 
+## Table of Contents
+
+
+* [Why do we need the new Async AsyncHTTPRequest_Generic library](#why-do-we-need-this-async-asynchttprequest_generic-library)
+  * [Features](#features)
+  * [Supports](#supports)
+  * [Principles of operation](#principles-of-operation)
+* [Changelog](#changelog)
+  * [Releases v1.1.1](#releases-v111)
+  * [Releases v1.1.0](#releases-v110)
+  * [Releases v1.0.2](#releases-v102)
+  * [Releases v1.0.1](#releases-v101)
+  * [Releases v1.0.0](#releases-v100)
+* [AsyncHTTPRequest_Generic for ESP32, ESP8266 using built-in WiFi and STM32 boards using built-in LAN8742A Ethernet](#asynchttprequest_generic-for-esp32-esp8266-using-built-in-wifi-and-stm32-boards-using-built-in-lan8742a-ethernet)
+* [Prerequisites](#prerequisites)
+* [Installation](#installation)
+  * [Use Arduino Library Manager](#use-arduino-library-manager)
+  * [Manual Install](#manual-install)
+  * [VS Code & PlatformIO](#vs-code--platformio)
+* [Packages' Patches](#packages-patches)
+* [HOWTO Fix `Multiple Definitions` Linker Error](#howto-fix-multiple-definitions-linker-error)
+* [HOWTO Use analogRead() with ESP32 running WiFi and/or BlueTooth (BT/BLE)](#howto-use-analogread-with-esp32-running-wifi-andor-bluetooth-btble)
+  * [1. ESP32 has 2 ADCs, named ADC1 and ADC2](#1--esp32-has-2-adcs-named-adc1-and-adc2)
+  * [2. ESP32 ADCs functions](#2-esp32-adcs-functions)
+  * [3. ESP32 WiFi uses ADC2 for WiFi functions](#3-esp32-wifi-uses-adc2-for-wifi-functions)
+* [Examples](#examples)
+  * [AsyncHTTPRequest_ESP](examples/AsyncHTTPRequest_ESP)
+  * [AsyncHTTPRequest_ESP_WiFiManager](examples/AsyncHTTPRequest_ESP_WiFiManager)
+  * [AsyncHTTPRequest_STM32](examples/AsyncHTTPRequest_STM32)
+  * [AsyncCustomHeader_STM32](examples/AsyncCustomHeader_STM32)
+  * [AsyncDweetGet_STM32](examples/AsyncDweetGet_STM32)
+  * [AsyncDweetPost_STM32](examples/AsyncDweetPost_STM32)
+  * [AsyncSimpleGET_STM32](examples/AsyncSimpleGET_STM32)
+  * [AsyncWebClientRepeating_STM32](examples/AsyncWebClientRepeating_STM32)
+* [Example AsyncHTTPRequest_STM32](#example-asynchttprequest_stm32)
+  * [1. File AsyncHTTPRequest_STM32.ino](#1-file-asynchttprequest_stm32ino)
+  * [2. File defines.h](#2-file-definesh) 
+* [Debug Terminal Output Samples](#debug-termimal-output-samples)
+  * [1. AsyncHTTPRequest_STM32 running on STM32F7 Nucleo-144 NUCLEO_F767ZI using built-in LAN8742A ](#1-asynchttprequest_stm32-running-on-stm32f7-nucleo-144-nucleo_f767zi-using-built-in-lan8742a)
+  * [2. AsyncHTTPRequest_ESP_WiFiManager running on ESP8266_NODEMCU](#2-asynchttprequest_esp_wifimanager-running-on-esp8266_nodemcu)
+  * [3. AsyncHTTPRequest_ESP_WiFiManager running on ESP32_DEV](#3-asynchttprequest_esp_wifimanager-running-on-esp32_dev)
+  * [4. AsyncHTTPRequest_ESP running on ESP8266_NODEMCU](#4-asynchttprequest_esp-running-on-esp8266_nodemcu)
+  * [5. AsyncWebClientRepeating_STM32 running on STM32F7 Nucleo-144 NUCLEO_F767ZI using built-in LAN8742A](#5-asyncwebclientrepeating_stm32-running-on-stm32f7-nucleo-144-nucleo_f767zi-using-built-in-lan8742a)
+* [Debug](#debug)
+* [Troubleshooting](#troubleshooting)
+* [Issues](#issues)
+* [Releases](#releases)
+* [TO DO](#to-do)
+* [DONE](#done)
+* [Contributions and Thanks](#contributions-and-thanks)
+* [Contributing](#contributing)
+* [License and credits](#license-and-credits)
+* [Copyright](#copyright)
+
+---
+---
+
 ## Why do we need this Async [AsyncHTTPRequest_Generic library](https://github.com/khoih-prog/AsyncHTTPRequest_Generic)
 
 #### Features
@@ -19,9 +76,9 @@
 4. Relying on **[`STM32duino LwIP`](https://github.com/stm32duino/LwIP)/[`STM32duino STM32Ethernet`](https://github.com/stm32duino/STM32Ethernet)/[`STM32AsyncTCP`](https://github.com/philbowles/STM32AsyncTCP) for STM32 using built-in LAN8742A Ethernet.**
 5. Methods similar in format and usage to XmlHTTPrequest in Javascript.
 
-#### Supports:
+#### Supports
 
-1. **GET and POST**
+1. **GET, POST, PUT, PATCH, DELETE and HEAD**
 2. Request and response headers
 3. Chunked response
 4. Single String response for short (<~5K) responses (heap permitting).
@@ -44,6 +101,21 @@ Chunked responses are recognized and handled transparently.
 
 ---
 ---
+
+
+## Changelog
+
+### Releases v1.1.1
+
+1. Prevent crash if request and/or method not correct.
+
+
+### Releases v1.1.0
+
+1. Add HTTP PUT, PATCH, DELETE and HEAD methods. Check [Add support for sending PUT, PATCH, DELETE request](https://github.com/khoih-prog/AsyncHTTPRequest_Generic/issues/5)
+2. Add Table of Contents
+3. Add Version String
+
 
 ### Releases v1.0.2
 
@@ -80,7 +152,7 @@ This library is based on, modified from:
 ---
 ---
 
-## Prerequisite
+## Prerequisites
 
  1. [`Arduino IDE 1.8.13+` for Arduino](https://www.arduino.cc/en/Main/Software)
  2. [`ESP8266 Core 2.7.4+`](https://github.com/esp8266/Arduino) for ESP8266-based boards.
@@ -110,7 +182,7 @@ The best and easiest way is to use `Arduino Library Manager`. Search for `AsyncH
 
 1. Install [VS Code](https://code.visualstudio.com/)
 2. Install [PlatformIO](https://platformio.org/platformio-ide)
-3. Install **AsyncHTTPRequest_Generic** library by using [Library Manager](https://docs.platformio.org/en/latest/librarymanager/). Search for ***AsyncHTTPRequest_Generic*** in [Platform.io Author's Libraries](https://platformio.org/lib/search?query=author:%22Khoi%20Hoang%22)
+3. Install [**AsyncHTTPRequest_Generic** library](https://platformio.org/lib/show/11235/AsyncHTTPRequest_Generic) by using [Library Manager](https://platformio.org/lib/show/11235/AsyncHTTPRequest_Generic/installation). Search for AsyncHTTPRequest_Generic in [Platform.io Author's Libraries](https://platformio.org/lib/search?query=author:%22Khoi%20Hoang%22)
 4. Use included [platformio.ini](platformio/platformio.ini) file from examples to ensure that all dependent libraries will installed automatically. Please visit documentation for the other options and examples at [Project Configuration File](https://docs.platformio.org/page/projectconf.html)
 
 ---
@@ -162,9 +234,24 @@ This file must be copied into the directory:
 
 - `~/.arduino15/packages/arduino/hardware/sam/x.yy.zz/platform.txt`
 
- 4. ***To be able to compile without error and automatically detect and display BOARD_NAME on Arduino SAMD (Nano-33-IoT, etc) boards***, you have to copy the whole [Arduino SAMD cores 1.8.9](Packages_Patches/arduino/hardware/samd/1.8.9) directory into Arduino SAMD directory (~/.arduino15/packages/arduino/hardware/samd/1.8.9).
+ 4. ***To be able to compile without error and automatically detect and display BOARD_NAME on Arduino SAMD (Nano-33-IoT, etc) boards***, you have to copy the whole [Arduino SAMD cores 1.8.10](Packages_Patches/arduino/hardware/samd/1.8.10) directory into Arduino SAMD directory (~/.arduino15/packages/arduino/hardware/samd/1.8.10).
  
+#### For core version v1.8.10+
+
+Supposing the Arduino SAMD version is 1.8.10. Now only one file must be copied into the directory:
+
+- `~/.arduino15/packages/arduino/hardware/samd/1.8.10/platform.txt`
+
+Whenever a new version is installed, remember to copy this files into the new version directory. For example, new version is x.yy.zz
+
+This file must be copied into the directory:
+
+- `~/.arduino15/packages/arduino/hardware/samd/x.yy.zz/platform.txt`
+ 
+#### For core version v1.8.9-
+
 Supposing the Arduino SAMD version is 1.8.9. These files must be copied into the directory:
+
 - `~/.arduino15/packages/arduino/hardware/samd/1.8.9/platform.txt`
 - ***`~/.arduino15/packages/arduino/hardware/samd/1.8.9/cores/arduino/Arduino.h`***
 
@@ -313,11 +400,26 @@ Ticker sendHTTPRequest(sendRequest, HTTP_REQUEST_INTERVAL_MS, 0, MILLIS);
 
 void sendRequest(void)
 {
+  static bool requestOpenResult;
+  
   if (request.readyState() == readyStateUnsent || request.readyState() == readyStateDone)
   {
-    //request.open("GET", "http://worldtimeapi.org/api/timezone/Europe/London.txt");
-    request.open("GET", "http://worldtimeapi.org/api/timezone/America/Toronto.txt");
-    request.send();
+    //requestOpenResult = request.open("GET", "http://worldtimeapi.org/api/timezone/Europe/London.txt");
+    requestOpenResult = request.open("GET", "http://worldtimeapi.org/api/timezone/America/Toronto.txt");
+    
+    if (requestOpenResult)
+    {
+      // Only send() if open() returns true, or crash
+      request.send();
+    }
+    else
+    {
+      Serial.println("Can't send bad request");
+    }
+  }
+  else
+  {
+    Serial.println("Can't send request");
   }
 }
 
@@ -494,12 +596,13 @@ IPAddress ip(192, 168, 2, 232);
 ---
 ---
 
-### Debug Terminal Oouput Samples
+### Debug Terminal Ouput Samples
 
 #### 1. [AsyncHTTPRequest_STM32](examples/AsyncHTTPRequest_STM32) running on STM32F7 Nucleo-144 NUCLEO_F767ZI using built-in LAN8742A 
 
 ```
 Start AsyncHTTPRequest_STM32 on NUCLEO_F767ZI
+AsyncHTTPRequest_Generic v1.1.1
 AsyncHTTPRequest @ IP : 192.168.2.72
 
 **************************************
@@ -544,6 +647,7 @@ week_number: 37
 
 ```
 Starting AsyncHTTPRequest_ESP_WiFiManager using LittleFS on ESP8266_NODEMCU
+AsyncHTTPRequest_Generic v1.1.1
 Stored: SSID = HueNet1, Pass = 12345678
 Got stored Credentials. Timeout 120s
 ConnectMultiWiFi in setup
@@ -576,6 +680,7 @@ HHHHHH
 
 ```
 Starting AsyncHTTPRequest_ESP_WiFiManager using SPIFFS on ESP32_DEV
+AsyncHTTPRequest_Generic v1.1.1
 Stored: SSID = HueNet1, Pass = 12345678
 Got stored Credentials. Timeout 120s
 ConnectMultiWiFi in setup
@@ -626,6 +731,7 @@ HHHHHHHHH HHHHHHHHHH HHHHHHHHHH
 
 ```
 Starting AsyncHTTPRequest_ESP using ESP8266_NODEMCU
+AsyncHTTPRequest_Generic v1.1.1
 Connecting to WiFi SSID: HueNet1
 ...........
 HTTP WebServer is @ IP : 192.168.2.81
@@ -657,6 +763,7 @@ HHHHHHHHH HHHHHHHHHH HHHHHHHHHH H
 
 ```
 Start AsyncWebClientRepeating_STM32 on NUCLEO_F767ZI
+AsyncHTTPRequest_Generic v1.1.1
 AsyncHTTPRequest @ IP : 192.168.2.72
 
 **************************************
@@ -748,9 +855,20 @@ Submit issues to: [AsyncHTTPRequest_Generic issues](https://github.com/khoih-pro
  1. Initially add support to STM32 using built-in LAN8742A Etnernet. Tested on **STM32F7 Nucleo-144 F767ZI**.
  2. Add more examples.
  3. Add debugging features.
+ 4. Add PUT, PATCH, DELETE and HEAD besides GET and POST.
 
 ---
 ---
+
+## Releases
+
+### Releases v1.1.1
+
+1. Prevent crash if request and/or method not correct.
+
+### Releases v1.1.0
+
+1. Add HTTP PUT, PATCH, DELETE and HEAD methods. Check [Add support for sending PUT, PATCH, DELETE request](https://github.com/khoih-prog/AsyncHTTPRequest_Generic/issues/5)
 
 ### Releases v1.0.2
 
@@ -776,10 +894,13 @@ This library is based on, modified, bug-fixed and improved from:
 
 2. Thanks to [Daniel Brunner](https://github.com/0xFEEDC0DE64) to report and make PR in [Fixed linker errors when included in multiple .cpp files](https://github.com/khoih-prog/AsyncHTTPRequest_Generic/pull/1) leading to v1.0.1. See [**HOWTO Fix `Multiple Definitions` Linker Error**](https://github.com/khoih-prog/AsyncHTTPRequest_Generic#HOWTO-Fix-Multiple-Definitions-Linker-Error)
 
+3. Thanks to [gleniat](https://github.com/gleniat) to make enhancement request in[Add support for sending PUT, PATCH, DELETE request](https://github.com/khoih-prog/AsyncHTTPRequest_Generic/issues/5) leading to v1.1.0.
+
 <table>
   <tr>
     <td align="center"><a href="https://github.com/boblemaire"><img src="https://github.com/boblemaire.png" width="100px;" alt="boblemaire"/><br /><sub><b>⭐️ Bob Lemaire</b></sub></a><br /></td>
     <td align="center"><a href="https://github.com/0xFEEDC0DE64"><img src="https://github.com/0xFEEDC0DE64.png" width="100px;" alt="0xFEEDC0DE64"/><br /><sub><b>Daniel Brunner</b></sub></a><br /></td>
+    <td align="center"><a href="https://github.com/gleniat"><img src="https://github.com/gleniat.png" width="100px;" alt="gleniat"/><br /><sub><b>gleniat</b></sub></a><br /></td>
   </tr> 
 </table>
 

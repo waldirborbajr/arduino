@@ -17,18 +17,22 @@
   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more details.
   You should have received a copy of the GNU General Public License along with this program.  If not, see <https://www.gnu.org/licenses/>.  
  
-  Version: 1.0.2
+  Version: 1.1.1
   
   Version Modified By   Date      Comments
   ------- -----------  ---------- -----------
   1.0.0    K Hoang     14/09/2020 Initial coding to add support to STM32 using built-in Ethernet (Nucleo-144, DISCOVERY, etc).
   1.0.1    K Hoang     09/10/2020 Restore cpp code besides Impl.h code.
   1.0.2    K Hoang     09/11/2020 Make Mutex Lock and delete more reliable and error-proof
+  1.1.0    K Hoang     23/12/2020 Add HTTP PUT, PATCH, DELETE and HEAD methods
+  1.1.1    K Hoang     24/12/2020 Prevent crash if request and/or method not correct.
  *****************************************************************************************************************************/
  
 #include "AsyncHTTPRequest_Debug_Generic.h"
 #include "AsyncHTTPRequest_Generic.h"
 
+
+#define CANT_SEND_BAD_REQUEST       F("Can't send() bad request")
 
 //**************************************************************************************************************
 AsyncHTTPRequest::AsyncHTTPRequest(): _readyState(readyStateUnsent), _HTTPcode(0), _chunked(false), _debug(DEBUG_IOTA_HTTP_SET)
@@ -110,6 +114,10 @@ bool  AsyncHTTPRequest::open(const char* method, const char* URL)
   _chunked      = false;
   _contentRead  = 0;
   _readyState   = readyStateUnsent;
+  
+  // New in v1.1.1
+  _requestReadyToSend = false;
+  //////
 
   if (strcmp(method, "GET") == 0)
   {
@@ -119,13 +127,35 @@ bool  AsyncHTTPRequest::open(const char* method, const char* URL)
   {
     _HTTPmethod = HTTPmethodPOST;
   }
+  // New in v1.1.0
+  else if (strcmp(method, "PUT") == 0)
+  {
+    _HTTPmethod = HTTPmethodPUT;
+  }
+  else if (strcmp(method, "PATCH") == 0)
+  {
+    _HTTPmethod = HTTPmethodPATCH;
+  }
+  else if (strcmp(method, "DELETE") == 0)
+  {
+    _HTTPmethod = HTTPmethodDELETE;
+  }
+  else if (strcmp(method, "HEAD") == 0)
+  {
+    _HTTPmethod = HTTPmethodHEAD;
+  }
+  //////
   else
+  {
     return false;
+  }
+
 
   if (!_parseURL(URL))
   {
     return false;
   }
+  
   if ( _client && _client->connected() && (strcmp(_URL->host, _connectedHost) != 0 || _URL->port != _connectedPort))
   {
     return false;
@@ -141,6 +171,10 @@ bool  AsyncHTTPRequest::open(const char* method, const char* URL)
     SAFE_DELETE_ARRAY(hostName)
     
     _lastActivity = millis();
+    
+    // New in v1.1.1
+    _requestReadyToSend = true;
+    //////
 
     return _connect();
   }
@@ -164,8 +198,18 @@ void  AsyncHTTPRequest::setTimeout(int seconds)
 
 //**************************************************************************************************************
 bool  AsyncHTTPRequest::send() 
-{
-  AHTTP_LOGDEBUG("send()");
+{ 
+  // New in v1.1.1
+  if (_requestReadyToSend)
+  {
+    AHTTP_LOGDEBUG("send()");
+  }
+  else
+  {
+    AHTTP_LOGDEBUG(CANT_SEND_BAD_REQUEST);
+    return false;
+  }
+  //////
 
   MUTEX_LOCK(false)
   
@@ -182,7 +226,17 @@ bool  AsyncHTTPRequest::send()
 //**************************************************************************************************************
 bool AsyncHTTPRequest::send(String body)
 {
-  AHTTP_LOGDEBUG3("send(String)", body.substring(0, 16).c_str(), ", length =", body.length());
+  // New in v1.1.1
+  if (_requestReadyToSend)
+  {
+    AHTTP_LOGDEBUG3("send(String)", body.substring(0, 16).c_str(), ", length =", body.length());
+  }
+  else
+  {
+    AHTTP_LOGDEBUG(CANT_SEND_BAD_REQUEST);
+    return false;
+  }
+  //////
 
   MUTEX_LOCK(false)
   
@@ -206,7 +260,17 @@ bool AsyncHTTPRequest::send(String body)
 //**************************************************************************************************************
 bool  AsyncHTTPRequest::send(const char* body) 
 {
-  AHTTP_LOGDEBUG3("send(char)", body, ", length =", strlen(body));
+  // New in v1.1.1
+  if (_requestReadyToSend)
+  {
+    AHTTP_LOGDEBUG3("send(char)", body, ", length =", strlen(body));
+  }
+  else
+  {
+    AHTTP_LOGDEBUG(CANT_SEND_BAD_REQUEST);
+    return false;
+  }
+  //////
 
   MUTEX_LOCK(false)
   
@@ -230,7 +294,17 @@ bool  AsyncHTTPRequest::send(const char* body)
 //**************************************************************************************************************
 bool  AsyncHTTPRequest::send(const uint8_t* body, size_t len)
 {
-  AHTTP_LOGDEBUG3("send(char)", (char*) body, ", length =", len);
+  // New in v1.1.1
+  if (_requestReadyToSend)
+  {
+    AHTTP_LOGDEBUG3("send(char)", (char*) body, ", length =", len);
+  }
+  else
+  {
+    AHTTP_LOGDEBUG(CANT_SEND_BAD_REQUEST);
+    return false;
+  }
+  //////
 
   MUTEX_LOCK(false)
   
@@ -254,7 +328,17 @@ bool  AsyncHTTPRequest::send(const uint8_t* body, size_t len)
 //**************************************************************************************************************
 bool AsyncHTTPRequest::send(xbuf* body, size_t len)
 {
-  AHTTP_LOGDEBUG3("send(char)", body->peekString(16).c_str(), ", length =", len);
+  // New in v1.1.1
+  if (_requestReadyToSend)
+  {
+    AHTTP_LOGDEBUG3("send(char)", body->peekString(16).c_str(), ", length =", len);
+  }
+  else
+  {
+    AHTTP_LOGDEBUG(CANT_SEND_BAD_REQUEST);
+    return false;
+  }
+  //////
 
   MUTEX_LOCK(false)
   
@@ -590,13 +674,19 @@ bool   AsyncHTTPRequest::_buildRequest()
       return false;
   }
 
-  _request->write(_HTTPmethod == HTTPmethodGET ? "GET " : "POST ");
+  // New in v1.1.1
+  AHTTP_LOGDEBUG1("_HTTPmethod =", _HTTPmethod);
+  AHTTP_LOGDEBUG3(_HTTPmethodStringwithSpace[_HTTPmethod], _URL->path, _URL->query, " HTTP/1.1\r\n" );
+  //////
+  
+  // New in v1.1.0
+  _request->write(_HTTPmethodStringwithSpace[_HTTPmethod]);
+  //////
+    
   _request->write(_URL->path);
   _request->write(_URL->query);
   _request->write(" HTTP/1.1\r\n");
-  
-  AHTTP_LOGDEBUG3(_HTTPmethod == HTTPmethodGET ? "GET " : "POST ", _URL->path, _URL->query, " HTTP/1.1\r\n" );
-
+     
   SAFE_DELETE(_URL)
 
   _URL = nullptr;
