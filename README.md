@@ -1,7 +1,9 @@
 # Arduino & NodeMCU (ESP32)
 
-![image](https://user-images.githubusercontent.com/40029512/196993872-2bbfe6c7-3aca-4855-a3fc-4a5a6fe7a9ab.png){ width=50% }
-![image](https://user-images.githubusercontent.com/40029512/196994196-4d54993c-9770-46b7-9ce0-74809c05a4c5.png){ width=50% }
+<div>
+<img src="https://user-images.githubusercontent.com/40029512/196993872-2bbfe6c7-3aca-4855-a3fc-4a5a6fe7a9ab.png" width="50%" height="50%">
+<img src="https://user-images.githubusercontent.com/40029512/196994196-4d54993c-9770-46b7-9ce0-74809c05a4c5.png" width="45%" height="45%">
+</div>
 
 # Troubleshooting - adding support to NodeMCU 
 
