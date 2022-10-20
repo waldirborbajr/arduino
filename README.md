@@ -26,9 +26,9 @@
 
 1. Install the driver for the NodeMCU
 
-`https://github.com/adrianmihalko/ch340g-ch34g-ch34x-mac-os-x-driver`
+https://github.com/adrianmihalko/ch340g-ch34g-ch34x-mac-os-x-driver
 
 or 
 
-`https://github.com/nodemcu/nodemcu-devkit/tree/master/Drivers`
+https://github.com/nodemcu/nodemcu-devkit/tree/master/Drivers
 
